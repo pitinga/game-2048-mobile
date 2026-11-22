@@ -2,6 +2,7 @@ extends "res://scripts/rules_base.gd"
 
 var board: Array[int] = []
 var won := false
+var awaiting_continue := false
 
 
 func _init() -> void:
@@ -12,6 +13,7 @@ func _init() -> void:
 func reset() -> void:
 	super.reset()
 	won = false
+	awaiting_continue = false
 	board.resize(16)
 	board.fill(0)
 	_spawn()
@@ -51,10 +53,11 @@ func _compress(line: Array) -> Array:
 
 
 func move(direction: String) -> bool:
-	if ended:
+	if ended or awaiting_continue:
 		return false
 	if not ["left", "right", "up", "down"].has(direction):
 		return false
+	var was_won := won
 	var old := board.duplicate()
 	for lane in range(4):
 		var indices: Array[int] = []
@@ -76,8 +79,8 @@ func move(direction: String) -> bool:
 	var changed := board != old
 	if changed:
 		_spawn()
-		if won:
-			ended = true
+		if won and not was_won:
+			awaiting_continue = true
 			message = "Você chegou a 2048!"
 		elif not can_move():
 			ended = true
@@ -86,6 +89,17 @@ func move(direction: String) -> bool:
 		ended = true
 		message = "Sem movimentos!"
 	return changed
+
+
+func continue_after_win() -> void:
+	if not awaiting_continue:
+		return
+	awaiting_continue = false
+	if can_move():
+		message = ""
+	else:
+		ended = true
+		message = "Sem movimentos!"
 
 
 func can_move() -> bool:

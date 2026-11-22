@@ -28,7 +28,11 @@ func _initialize() -> void:
 	game.board[0] = 1024
 	game.board[1] = 1024
 	game.move("left")
-	check(game.won, "meta 2048 reconhecida")
+	check(game.won and game.awaiting_continue and not game.ended, "meta 2048 reconhecida sem encerrar partida")
+	check(not game.move("right"), "aguarda escolha explícita após vencer")
+	game.continue_after_win()
+	check(not game.awaiting_continue and not game.ended, "CONTINUAR mantém partida ativa")
+	check(game.move("right"), "jogada adicional aceita após 2048")
 	game.board.assign([2, 4, 2, 4, 4, 2, 4, 2, 2, 4, 2, 4, 4, 2, 4, 2])
 	check(not game.can_move(), "tabuleiro bloqueado")
 	game.move("up")
