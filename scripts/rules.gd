@@ -77,6 +77,7 @@ func move(direction: String) -> bool:
 	if changed:
 		_spawn()
 		if won:
+			ended = true
 			message = "Você chegou a 2048!"
 		elif not can_move():
 			ended = true
